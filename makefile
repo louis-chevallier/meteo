@@ -1,0 +1,4 @@
+
+
+start :
+	python meteo.py
