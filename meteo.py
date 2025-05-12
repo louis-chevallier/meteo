@@ -1,6 +1,6 @@
 import urllib.request
 from utillc import *
-import json
+import json, os
 import datetime
 import pandas as pd
 from io import StringIO, BytesIO
@@ -96,29 +96,33 @@ def get_mesures(champ='RR',
                 deb = make_date(2022, 1, 1),
                 fin = make_date(2022, 7, 1),
                 nom='RENNES-ST JACQUES') :
-    p='rayonnement' # avec cette mesure on selectionne les stations qui donnent tout
-    j=get_stations_de_dept(p=p)
-    EKOX(len(j))
-    ouverts= [ e for e in j if e["posteOuvert"] == True ]
-    sel = [ e for e in j if e["posteOuvert"] == True and e['nom'] == nom]
-    EKOX(len(ouverts))
-    EKOX(len(sel))    
-    #EKOX([e['nom'] for e in ouverts])
-    s0 = sel[0]
-    EKOX(s0['nom'])
-    #"e['nom'] == 'RENNES']
-    ref = get_données(deb, fin, station_id = s0['id'])
-    EKOX(ref)
-    data = get_fichier(ref['elaboreProduitAvecDemandeResponse']['return'])
-    #EKOX(data)
-    #EKOX(data.head())
-    
-    bons_champs = [ series_name for series_name, series in data.items() if not np.isnan(np.min(np.asarray(series)))]
-
+    fn = f"{nom}_{deb}_{fin}.pkl"
+    if os.path.exists(fn) :
+        data = pd.read_pickle(fn)
+    else :
+        p='rayonnement' # avec cette mesure on selectionne les stations qui donnent tout
+        j=get_stations_de_dept(p=p)
+        EKOX(len(j))
+        ouverts= [ e for e in j if e["posteOuvert"] == True ]
+        sel = [ e for e in j if e["posteOuvert"] == True and e['nom'] == nom]
+        EKOX(len(ouverts))
+        EKOX(len(sel))    
+        #EKOX([e['nom'] for e in ouverts])
+        s0 = sel[0]
+        EKOX(s0['nom'])
+        #"e['nom'] == 'RENNES']
+        ref = get_données(deb, fin, station_id = s0['id'])
+        EKOX(ref)
+        data = get_fichier(ref['elaboreProduitAvecDemandeResponse']['return'])
+        #EKOX(data)
+        #EKOX(data.head())
+        data.to_pickle(fn)
+        
+        bons_champs = [ series_name for series_name, series in data.items() if not np.isnan(np.min(np.asarray(series)))]
+        
     ret = np.asarray(data[champ])
     EKOX(ret.shape)
     EKOX(data.shape)
-    data.to_pickle(f"{nom}_ {deb}_{fin}.pkl")
     return ret
 
 
