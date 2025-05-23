@@ -96,7 +96,10 @@ def get_mesures(champ='RR',
                 deb = make_date(2022, 1, 1),
                 fin = make_date(2022, 7, 1),
                 nom='RENNES-ST JACQUES') :
-    fn = f"{nom}_{deb}_{fin}.pkl"
+    root = "/content/gdrive/MyDrive/data/meteo"
+    root = "/mnt/hd3/data/meteo"
+    
+    fn = f"{root}/{nom}_{deb}_{fin}.pkl"
     if os.path.exists(fn) :
         data = pd.read_pickle(fn)
     else :
